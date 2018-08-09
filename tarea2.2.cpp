@@ -6,7 +6,7 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-  int tamano, procesador, cont=0,final,cadauno,conta,numero[2];
+  int tamano, procesador, cont=-1,final,cadauno,conta,numero[2];
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD, &tamano); // obtenems el tamaño o np
   MPI_Comm_rank(MPI_COMM_WORLD, &procesador);// captura el procesador
@@ -15,10 +15,13 @@ int main(int argc, char* argv[]){
 	
 	if(procesador==0)
 	{
-
 		fixero.seekg(0, fixero.end); 
 	    final = fixero.tellg();
 	    cadauno=final/tamano;
+	    
+	    if(final%tamano==0) //cuando la division es exacta se debe restar un numero para dar con el resultado real
+	    	cont--;
+
 	    fixero.seekg(0);
 	    for(int i=1;i<tamano;i++)
 	    {
@@ -28,7 +31,7 @@ int main(int argc, char* argv[]){
 
 	    }
 
-		 while(cadauno> fixero.tellg())
+		 while(cadauno>=fixero.tellg())
 		{
 			getline(fixero,linea);
 			cont++;
@@ -47,7 +50,7 @@ int main(int argc, char* argv[]){
 	{
 		 MPI_Recv(numero, 2, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		 fixero.seekg(numero[0]);
-		 while(numero[1]>fixero.tellg())
+		 while(numero[1]>=fixero.tellg() && fixero.tellg()!=-1)
 		{
 			getline(fixero,linea);
 			cont++;
